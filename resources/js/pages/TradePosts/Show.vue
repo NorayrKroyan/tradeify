@@ -1,0 +1,5 @@
+<script setup lang="ts">
+import { Head } from '@inertiajs/vue3';
+defineProps<{ post: any }>();
+</script>
+<template><Head :title="post.title"/><div class="mx-auto max-w-4xl space-y-5 p-6"><div><span class="rounded-full border px-3 py-1 text-sm uppercase">{{ post.type }}</span><h1 class="mt-3 text-3xl font-semibold">{{ post.title }}</h1><p class="text-gray-600">{{ post.company.trading_name || post.company.legal_name }} · Verified</p></div><div class="grid gap-3 md:grid-cols-3"><img v-for="image in post.images" :key="image.id" :src="`/storage/${image.path}`" :alt="image.alt_text" class="aspect-square w-full rounded object-cover" /></div><p class="whitespace-pre-line">{{ post.description }}</p><div class="grid gap-3 rounded border p-5 md:grid-cols-2"><div>Product: {{ post.product_name }}</div><div>HS code: {{ post.hs_code || 'Not provided' }}</div><div>Quantity: {{ post.quantity }} {{ post.unit }}</div><div>Price: {{ post.price }} {{ post.currency }}</div><div>Incoterm: {{ post.incoterm }}</div><div>Origin: {{ post.origin_country_code }}</div></div></div></template>
