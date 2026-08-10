@@ -14,6 +14,7 @@ import {
     Store,
 } from '@lucide/vue';
 import { computed } from 'vue';
+import BrandHeader from '@/components/BrandHeader.vue';
 
 const props = defineProps<{
     profile: {
@@ -89,7 +90,7 @@ const steps = computed(() => [
         description: companyApproved.value
             ? 'Your company has been approved.'
             : companyPending.value
-              ? 'The TradeVerify administrator is reviewing your documents.'
+              ? 'The Tradeify administrator is reviewing your documents.'
               : companyRejected.value
                 ? 'Corrections are required before approval.'
                 : 'Review starts after your company application is submitted.',
@@ -102,25 +103,19 @@ const steps = computed(() => [
 <template>
     <Head title="Getting started" />
 
-    <div class="mx-auto max-w-5xl space-y-6 p-6">
-        <section class="rounded-2xl border bg-card p-6 shadow-sm">
-            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
-                    <p class="text-sm font-medium text-primary">TradeVerify setup</p>
-                    <h1 class="mt-1 text-3xl font-semibold tracking-tight">
-                        Welcome, {{ profile.name }}
-                    </h1>
-                    <p class="mt-2 max-w-2xl text-muted-foreground">
-                        Complete the steps below. Only approved companies can publish buy requests, sell offers, or broker opportunities.
-                    </p>
-                </div>
-
-                <div class="rounded-xl border px-4 py-3 text-sm">
-                    <div class="text-muted-foreground">Selected account type</div>
+    <div class="mx-auto max-w-6xl space-y-6 p-4 sm:p-6 lg:p-8">
+        <BrandHeader
+            eyebrow="Account setup"
+            :title="`Welcome, ${profile.name}`"
+            description="Complete the setup steps below. Your progress is saved, and trading access becomes available after your company is approved."
+        >
+            <template #actions>
+                <div class="rounded-xl border bg-background px-4 py-3 text-sm shadow-sm">
+                    <div class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Account type</div>
                     <div class="mt-1 font-semibold">{{ roleLabel }}</div>
                 </div>
-            </div>
-        </section>
+            </template>
+        </BrandHeader>
 
         <section
             v-if="profile.is_admin"

@@ -27,7 +27,7 @@ defineProps<{
 
 defineOptions({
     layout: {
-        title: 'Join TradeVerify',
+        title: 'Join Tradeify',
         description: 'Choose how you trade, upload your license, then create your account.',
     },
 });
@@ -130,8 +130,8 @@ const removeLicense = (index: number) => {
     >
         <div class="rounded-lg border bg-muted/30 p-4">
             <div class="mb-2 flex items-center justify-between text-sm">
-                <span class="font-medium">Create marketplace account</span>
-                <span class="text-muted-foreground">Role + license + account</span>
+                <span class="font-medium">Registration progress</span>
+                <span class="text-muted-foreground">3 simple steps</span>
             </div>
             <div class="h-2 overflow-hidden rounded-full bg-muted">
                 <div class="h-full w-full rounded-full bg-primary" />
@@ -140,7 +140,7 @@ const removeLicense = (index: number) => {
 
         <div class="space-y-3">
             <div>
-                <h2 class="text-base font-semibold">1. How will you use TradeVerify?</h2>
+                <h2 class="text-base font-semibold">1. How will you use Tradeify?</h2>
                 <p class="text-sm text-muted-foreground">
                     Choose your marketplace role. Your license documents will be reviewed before trading access is approved.
                 </p>

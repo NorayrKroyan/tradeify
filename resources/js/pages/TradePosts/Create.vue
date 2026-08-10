@@ -2,6 +2,7 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { Handshake, ShoppingCart, Store } from '@lucide/vue';
 import { watch } from 'vue';
+import BrandHeader from '@/components/BrandHeader.vue';
 
 type TradePostType = 'buy' | 'sell' | 'broker';
 
@@ -86,24 +87,43 @@ const submit = () => {
 <template>
     <Head title="Create trade post" />
 
-    <div class="mx-auto max-w-5xl space-y-6 p-6">
-        <section class="rounded-2xl border bg-card p-6 shadow-sm">
-            <div class="flex items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-3xl font-semibold tracking-tight">
-                        Create a trade post
-                    </h1>
-                    <p class="mt-2 text-muted-foreground">
-                        Choose what you need, then enter the product and commercial details.
-                    </p>
-                </div>
-
+    <div class="mx-auto max-w-6xl space-y-6 p-4 sm:p-6 lg:p-8">
+        <BrandHeader
+            eyebrow="Publish an opportunity"
+            title="Create a trade post"
+            description="Choose your marketplace role, describe the product clearly, and add realistic commercial terms so verified companies can evaluate the opportunity quickly."
+        >
+            <template #actions>
+                <Link
+                    href="/trade-posts"
+                    class="rounded-xl border bg-background px-4 py-2.5 text-sm font-semibold transition hover:bg-muted"
+                >
+                    Browse marketplace
+                </Link>
                 <Link
                     href="/my-posts"
-                    class="text-sm font-medium text-primary underline underline-offset-4"
+                    class="rounded-xl border bg-background px-4 py-2.5 text-sm font-semibold transition hover:bg-muted"
                 >
                     My posts
                 </Link>
+            </template>
+        </BrandHeader>
+
+        <section class="grid gap-3 sm:grid-cols-3">
+            <div class="rounded-2xl border bg-card p-4 shadow-sm">
+                <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Step 1</div>
+                <div class="mt-1 font-semibold">Choose post type</div>
+                <p class="mt-1 text-xs leading-5 text-muted-foreground">Buy, sell or broker based on your approved role.</p>
+            </div>
+            <div class="rounded-2xl border bg-card p-4 shadow-sm">
+                <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Step 2</div>
+                <div class="mt-1 font-semibold">Describe the product</div>
+                <p class="mt-1 text-xs leading-5 text-muted-foreground">Use a clear title, quantity and specification.</p>
+            </div>
+            <div class="rounded-2xl border bg-card p-4 shadow-sm">
+                <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Step 3</div>
+                <div class="mt-1 font-semibold">Add commercial terms</div>
+                <p class="mt-1 text-xs leading-5 text-muted-foreground">Price, target, Incoterm, geography and timing.</p>
             </div>
         </section>
 
@@ -221,7 +241,7 @@ const submit = () => {
                         <select
                             v-model="form.category_id"
                             required
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                         >
                             <option value="">Choose category</option>
                             <option
@@ -239,7 +259,7 @@ const submit = () => {
                         <input
                             v-model="form.product_name"
                             required
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             placeholder="Example: Frozen trout"
                         />
                     </label>
@@ -249,7 +269,7 @@ const submit = () => {
                         <input
                             v-model="form.title"
                             required
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             :placeholder="
                                 form.type === 'buy'
                                     ? 'Wanted: frozen trout for weekly import'
@@ -264,7 +284,7 @@ const submit = () => {
                         <span class="text-sm font-medium">HS code</span>
                         <input
                             v-model="form.hs_code"
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             placeholder="Example: 0303"
                         />
                     </label>
@@ -278,13 +298,13 @@ const submit = () => {
                                 type="number"
                                 min="0"
                                 step="0.001"
-                                class="rounded-lg border bg-background p-3"
+                                class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                                 placeholder="1000"
                             />
                             <input
                                 v-model="form.unit"
                                 required
-                                class="rounded-lg border bg-background p-3"
+                                class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                                 placeholder="kg, pcs, pallets"
                             />
                         </div>
@@ -297,7 +317,7 @@ const submit = () => {
                         <textarea
                             v-model="form.description"
                             required
-                            class="min-h-40 rounded-lg border bg-background p-3"
+                            class="min-h-40 rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             placeholder="Quality, size, packaging, certificates, frequency, mandate details, and other requirements"
                         />
                     </label>
@@ -326,7 +346,7 @@ const submit = () => {
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                class="rounded-lg border bg-background p-3"
+                                class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                                 placeholder="0.00"
                             />
                             <input
@@ -351,7 +371,7 @@ const submit = () => {
                             type="number"
                             min="0"
                             step="0.01"
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             :placeholder="
                                 form.type === 'buy'
                                     ? 'Preferred / maximum buying price'
@@ -366,7 +386,7 @@ const submit = () => {
                         <span class="text-sm font-medium">Incoterm</span>
                         <input
                             v-model="form.incoterm"
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             placeholder="EXW, FOB, CIF..."
                         />
                     </label>
@@ -380,7 +400,7 @@ const submit = () => {
                             type="number"
                             min="0"
                             step="0.001"
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             placeholder="Optional"
                         />
                     </label>
@@ -417,7 +437,7 @@ const submit = () => {
                             <select
                                 v-model="form.broker_commission_type"
                                 required
-                                class="rounded-lg border bg-background p-3"
+                                class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             >
                                 <option value="negotiable">Negotiable</option>
                                 <option value="percentage">Percentage</option>
@@ -450,7 +470,7 @@ const submit = () => {
                                         : undefined
                                 "
                                 step="0.01"
-                                class="rounded-lg border bg-background p-3"
+                                class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                                 placeholder="0.00"
                             />
                         </label>
@@ -461,7 +481,7 @@ const submit = () => {
                         <input
                             v-model="form.available_from"
                             type="date"
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                         />
                     </label>
 
@@ -470,7 +490,7 @@ const submit = () => {
                         <input
                             v-model="form.expires_at"
                             type="date"
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                         />
                     </label>
 
@@ -480,7 +500,7 @@ const submit = () => {
                         </span>
                         <input
                             v-model="form.price_terms"
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             placeholder="Negotiable, advance payment, price per kg..."
                         />
                     </label>
@@ -491,7 +511,7 @@ const submit = () => {
                             type="file"
                             multiple
                             accept="image/*"
-                            class="rounded-lg border bg-background p-3"
+                            class="rounded-xl border bg-background p-3 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
                             @change="setImages"
                         />
                     </label>

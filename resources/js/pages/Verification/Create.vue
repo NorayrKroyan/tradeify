@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { Building2, FileCheck2, ShieldCheck } from '@lucide/vue';
+import { Building2, FileCheck2 } from '@lucide/vue';
 import { computed } from 'vue';
+import BrandHeader from '@/components/BrandHeader.vue';
 
 type Company = {
     legal_name?: string;
@@ -120,27 +121,26 @@ const submit = () => {
 <template>
     <Head title="Verify your company" />
 
-    <div class="mx-auto max-w-5xl space-y-6 p-6">
-        <section class="rounded-2xl border bg-card p-6 shadow-sm">
-            <div class="mb-4 flex items-center justify-between text-sm">
-                <span class="font-medium">Step 3 of 4</span>
-                <Link href="/dashboard" class="text-primary underline underline-offset-4">
-                    Back to setup dashboard
+    <div class="mx-auto max-w-6xl space-y-6 p-4 sm:p-6 lg:p-8">
+        <BrandHeader
+            eyebrow="Step 3 of 4 · Company verification"
+            title="Verify your company"
+            description="Enter legal details exactly as they appear on official records and upload the required evidence. Clear, readable documents help the review move faster."
+        >
+            <template #actions>
+                <Link href="/dashboard" class="rounded-xl border bg-background px-4 py-2.5 text-sm font-semibold transition hover:bg-muted">
+                    Back to setup
                 </Link>
-            </div>
+            </template>
+        </BrandHeader>
 
-            <div class="mb-6 h-2 overflow-hidden rounded-full bg-muted">
-                <div class="h-full w-3/4 rounded-full bg-primary" />
+        <section class="rounded-2xl border bg-card p-5 shadow-sm">
+            <div class="mb-3 flex items-center justify-between text-sm">
+                <span class="font-semibold">Verification progress</span>
+                <span class="text-muted-foreground">75%</span>
             </div>
-
-            <div class="flex items-start gap-4">
-                <ShieldCheck class="mt-1 size-8 shrink-0" />
-                <div>
-                    <h1 class="text-3xl font-semibold tracking-tight">Verify your company</h1>
-                    <p class="mt-2 max-w-3xl text-muted-foreground">
-                        TradeVerify reviews every company before it can publish. Complete the legal details and upload the four required documents.
-                    </p>
-                </div>
+            <div class="h-2 overflow-hidden rounded-full bg-muted">
+                <div class="h-full w-3/4 rounded-full bg-gradient-to-r from-blue-500 to-emerald-500" />
             </div>
         </section>
 
