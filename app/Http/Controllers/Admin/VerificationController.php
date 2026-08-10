@@ -22,8 +22,13 @@ class VerificationController extends Controller
     {
         $companies = Company::query()
             ->with('owner:id,name,email')
-            ->when($request->string('status')->toString(), fn ($q, $status) => $q->where('verification_status', $status))
-            ->orderByRaw("FIELD(verification_status, 'pending', 'under_review', 'rejected', 'approved', 'suspended', 'draft')")
+            ->when(
+                $request->string('status')->toString(),
+                fn ($q, $status) => $q->where('verification_status', $status)
+            )
+            ->orderByRaw(
+                "FIELD(verification_status, 'pending', 'under_review', 'rejected', 'approved', 'suspended', 'draft')"
+            )
             ->latest('submitted_at')
             ->paginate(25)
             ->withQueryString();
@@ -37,20 +42,34 @@ class VerificationController extends Controller
     public function show(Company $company): Response
     {
         if ($company->verification_status === VerificationStatus::Pending) {
-            $company->update(['verification_status' => VerificationStatus::UnderReview]);
+            $company->update([
+                'verification_status' => VerificationStatus::UnderReview,
+            ]);
         }
 
         return Inertia::render('Admin/Verifications/Show', [
-            'company' => $company->load(['owner', 'users', 'documents', 'reviews.reviewer']),
+            'company' => $company->load([
+                'owner',
+                'users',
+                'documents',
+                'reviews.reviewer',
+            ]),
         ]);
     }
 
-    public function decide(VerificationDecisionRequest $request, Company $company): RedirectResponse
-    {
+    public function decide(
+        VerificationDecisionRequest $request,
+        Company $company
+    ): RedirectResponse {
         $before = $company->toArray();
         $decision = $request->string('decision')->toString();
 
-        DB::transaction(function () use ($request, $company, $decision, $before): void {
+        DB::transaction(function () use (
+            $request,
+            $company,
+            $decision,
+            $before
+        ): void {
             if ($decision === 'approve') {
                 $company->update([
                     'verification_status' => VerificationStatus::Approved,
@@ -64,11 +83,13 @@ class VerificationController extends Controller
                     CompanyActivity::Importer => ['buyer'],
                     CompanyActivity::Exporter => ['seller'],
                     CompanyActivity::Both => ['buyer', 'seller'],
+                    CompanyActivity::Broker => ['broker'],
                 };
 
                 foreach ($company->users as $user) {
                     $user->removeRole('buyer');
                     $user->removeRole('seller');
+                    $user->removeRole('broker');
                     $user->assignRole($roles);
                 }
             }
@@ -90,6 +111,7 @@ class VerificationController extends Controller
                 foreach ($company->users as $user) {
                     $user->removeRole('buyer');
                     $user->removeRole('seller');
+                    $user->removeRole('broker');
                 }
             }
 
@@ -116,7 +138,12 @@ class VerificationController extends Controller
             ]);
         });
 
-        $company->owner->notify(new CompanyVerificationDecisionNotification($company->fresh(), $decision));
+        $company->owner->notify(
+            new CompanyVerificationDecisionNotification(
+                $company->fresh(),
+                $decision
+            )
+        );
 
         return redirect()->route('admin.verifications.index')
             ->with('success', "Company verification decision: {$decision}.");

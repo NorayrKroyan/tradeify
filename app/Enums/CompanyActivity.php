@@ -7,4 +7,5 @@ enum CompanyActivity: string
     case Importer = 'importer';
     case Exporter = 'exporter';
     case Both = 'both';
+    case Broker = 'broker';
 }

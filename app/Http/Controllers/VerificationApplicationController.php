@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\VerificationStatus;
 use App\Http\Requests\CompanyApplicationRequest;
 use App\Models\Company;
+use App\Models\RegistrationLicense;
 use App\Models\VerificationDocument;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -29,6 +30,7 @@ class VerificationApplicationController extends Controller
         $suggestedActivityType = match ($user->requested_role) {
             'buyer' => 'importer',
             'seller' => 'exporter',
+            'broker' => 'broker',
             default => 'both',
         };
 
@@ -36,6 +38,15 @@ class VerificationApplicationController extends Controller
             'company' => $company,
             'suggestedActivityType' => $suggestedActivityType,
             'userEmail' => $user->email,
+            'registrationLicenses' => RegistrationLicense::query()
+                ->where('user_id', $user->id)
+                ->get([
+                    'id',
+                    'license_type',
+                    'original_name',
+                    'status',
+                    'transferred_at',
+                ]),
         ]);
     }
 
@@ -47,6 +58,7 @@ class VerificationApplicationController extends Controller
         $data['activity_type'] = match ($user->requested_role) {
             'buyer' => 'importer',
             'seller' => 'exporter',
+            'broker' => 'broker',
             default => 'both',
         };
 
@@ -80,6 +92,28 @@ class VerificationApplicationController extends Controller
 
                 $company->update($data);
             }
+
+            RegistrationLicense::query()
+                ->where('user_id', $user->id)
+                ->whereNull('transferred_at')
+                ->each(function (RegistrationLicense $license) use ($company, $user): void {
+                    $document = VerificationDocument::create([
+                        'company_id' => $company->id,
+                        'uploaded_by' => $user->id,
+                        'document_type' => $license->license_type,
+                        'original_name' => $license->original_name,
+                        'disk' => $license->disk,
+                        'path' => $license->path,
+                        'mime_type' => $license->mime_type,
+                        'size_bytes' => $license->size_bytes,
+                        'status' => 'pending',
+                    ]);
+
+                    $license->update([
+                        'verification_document_id' => $document->id,
+                        'transferred_at' => now(),
+                    ]);
+                });
 
             foreach ($request->file('documents', []) as $index => $documentInput) {
                 $file = $documentInput['file'];

@@ -84,6 +84,12 @@ class TradePostController extends Controller
         );
 
         DB::transaction(function () use ($request, $validated, $user): void {
+            if ($validated['type'] !== 'broker') {
+                $validated['broker_direction'] = null;
+                $validated['broker_commission_type'] = null;
+                $validated['broker_commission_value'] = null;
+            }
+
             $post = TradePost::create([
                 ...$validated,
                 'company_id' => $user->primary_company_id,
@@ -149,11 +155,19 @@ class TradePostController extends Controller
             $types[] = 'sell';
         }
 
-        if ($user->hasAnyRole(['super-admin', 'administrator'])) {
-            return ['buy', 'sell'];
+        if ($user->hasRole('broker')) {
+            $types[] = 'broker';
         }
 
-        abort_if($types === [], 403, 'No approved buyer or seller role is assigned.');
+        if ($user->hasAnyRole(['super-admin', 'administrator'])) {
+            return ['buy', 'sell', 'broker'];
+        }
+
+        abort_if(
+            $types === [],
+            403,
+            'No approved buyer, seller, or broker role is assigned.'
+        );
 
         return $types;
     }

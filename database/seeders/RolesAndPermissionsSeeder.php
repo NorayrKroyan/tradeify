@@ -34,10 +34,21 @@ class RolesAndPermissionsSeeder extends Seeder
         $administrator = Role::findOrCreate('administrator', 'web');
         $buyer = Role::findOrCreate('buyer', 'web');
         $seller = Role::findOrCreate('seller', 'web');
+        $broker = Role::findOrCreate('broker', 'web');
 
         $superAdmin->syncPermissions(Permission::all());
         $administrator->syncPermissions(Permission::all());
-        $buyer->syncPermissions(['create trade posts', 'edit own trade posts', 'delete own trade posts']);
-        $seller->syncPermissions(['create trade posts', 'edit own trade posts', 'delete own trade posts']);
+
+        $tradePostPermissions = [
+            'create trade posts',
+            'edit own trade posts',
+            'delete own trade posts',
+        ];
+
+        $buyer->syncPermissions($tradePostPermissions);
+        $seller->syncPermissions($tradePostPermissions);
+        $broker->syncPermissions($tradePostPermissions);
+
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
     }
 }

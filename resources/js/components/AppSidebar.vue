@@ -48,7 +48,9 @@ type SharedUser = {
 
 const page = usePage();
 const user = computed<SharedUser | null>(() => {
-    const auth = page.props.auth as { user?: SharedUser | null } | undefined;
+const auth = page.props.auth as unknown as {
+    user?: SharedUser | null;
+} | undefined;
     return auth?.user ?? null;
 });
 const roles = computed(() => user.value?.roles ?? []);

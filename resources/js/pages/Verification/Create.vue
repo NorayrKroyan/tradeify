@@ -28,7 +28,7 @@ type DocumentRow = {
 
 const props = defineProps<{
     company: Company | null;
-    suggestedActivityType: 'importer' | 'exporter' | 'both';
+    suggestedActivityType: 'importer' | 'exporter' | 'both' | 'broker';
     userEmail: string;
 }>();
 
@@ -83,6 +83,8 @@ const form = useForm({
 const roleLabel = computed(() => {
     if (form.activity_type === 'importer') return 'Buyer / Importer';
     if (form.activity_type === 'exporter') return 'Seller / Exporter';
+    if (form.activity_type === 'broker') return 'Broker / Intermediary';
+
     return 'Buyer and seller / Importer and exporter';
 });
 
@@ -102,7 +104,7 @@ const setDocumentFile = (index: number, event: Event) => {
 };
 
 const removeDocument = (index: number) => {
-    if (!form.documents[index].required) {
+    if (! form.documents[index].required) {
         form.documents.splice(index, 1);
     }
 };
@@ -126,6 +128,7 @@ const submit = () => {
                     Back to setup dashboard
                 </Link>
             </div>
+
             <div class="mb-6 h-2 overflow-hidden rounded-full bg-muted">
                 <div class="h-full w-3/4 rounded-full bg-primary" />
             </div>
@@ -147,14 +150,20 @@ const submit = () => {
                     <Building2 class="mt-1 size-6 shrink-0" />
                     <div>
                         <h2 class="text-xl font-semibold">1. Company details</h2>
-                        <p class="text-sm text-muted-foreground">Enter the information exactly as it appears in official documents.</p>
+                        <p class="text-sm text-muted-foreground">
+                            Enter the information exactly as it appears in official documents.
+                        </p>
                     </div>
                 </div>
 
                 <div class="mb-5 rounded-xl border bg-muted/30 p-4">
-                    <div class="text-xs font-medium uppercase tracking-wide text-muted-foreground">Your marketplace role</div>
+                    <div class="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Your marketplace role
+                    </div>
                     <div class="mt-1 font-semibold">{{ roleLabel }}</div>
-                    <p class="mt-1 text-sm text-muted-foreground">This was selected when the account was created.</p>
+                    <p class="mt-1 text-sm text-muted-foreground">
+                        This was selected when the account was created.
+                    </p>
                 </div>
 
                 <div class="grid gap-5 md:grid-cols-2">
@@ -162,45 +171,62 @@ const submit = () => {
                         <span class="text-sm font-medium">Legal company name *</span>
                         <input v-model="form.legal_name" required class="rounded-lg border bg-background p-3" placeholder="Name from registration certificate" />
                     </label>
+
                     <label class="grid gap-2">
                         <span class="text-sm font-medium">Trading name</span>
                         <input v-model="form.trading_name" class="rounded-lg border bg-background p-3" placeholder="Brand or commercial name" />
                     </label>
+
                     <label class="grid gap-2">
                         <span class="text-sm font-medium">Registration number *</span>
                         <input v-model="form.registration_number" required class="rounded-lg border bg-background p-3" placeholder="Official registration number" />
                     </label>
+
                     <label class="grid gap-2">
                         <span class="text-sm font-medium">Tax / VAT number *</span>
                         <input v-model="form.tax_number" required class="rounded-lg border bg-background p-3" placeholder="Tax identification number" />
                     </label>
+
                     <label class="grid gap-2">
                         <span class="text-sm font-medium">Country code *</span>
                         <input v-model="form.country_code" required maxlength="2" class="rounded-lg border bg-background p-3 uppercase" placeholder="AM" />
                     </label>
+
                     <label class="grid gap-2">
                         <span class="text-sm font-medium">Business phone *</span>
                         <input v-model="form.business_phone" required class="rounded-lg border bg-background p-3" placeholder="+374..." />
                     </label>
+
                     <label class="grid gap-2 md:col-span-2">
                         <span class="text-sm font-medium">Business email *</span>
                         <input v-model="form.business_email" required type="email" class="rounded-lg border bg-background p-3" placeholder="company@example.com" />
                     </label>
+
                     <label class="grid gap-2 md:col-span-2">
                         <span class="text-sm font-medium">Website</span>
                         <input v-model="form.website" type="url" class="rounded-lg border bg-background p-3" placeholder="https://example.com" />
                     </label>
+
                     <label class="grid gap-2 md:col-span-2">
                         <span class="text-sm font-medium">Registered address *</span>
                         <textarea v-model="form.registered_address" required class="min-h-24 rounded-lg border bg-background p-3" placeholder="Full legal address" />
                     </label>
+
                     <label class="grid gap-2 md:col-span-2">
                         <span class="text-sm font-medium">Operating address</span>
                         <textarea v-model="form.operating_address" class="min-h-24 rounded-lg border bg-background p-3" placeholder="Warehouse, factory, or office address if different" />
                     </label>
+
                     <label class="grid gap-2 md:col-span-2">
                         <span class="text-sm font-medium">Company activity and products *</span>
-                        <textarea v-model="form.description" required class="min-h-36 rounded-lg border bg-background p-3" placeholder="Describe what the company imports, exports, manufactures, or distributes" />
+                        <textarea
+                            v-model="form.description"
+                            required
+                            class="min-h-36 rounded-lg border bg-background p-3"
+                            :placeholder="form.activity_type === 'broker'
+                                ? 'Describe the products, markets, buyer/seller mandates, and brokerage services your company handles'
+                                : 'Describe what the company imports, exports, manufactures, or distributes'"
+                        />
                     </label>
                 </div>
             </section>
@@ -211,30 +237,51 @@ const submit = () => {
                         <FileCheck2 class="mt-1 size-6 shrink-0" />
                         <div>
                             <h2 class="text-xl font-semibold">2. Verification documents</h2>
-                            <p class="text-sm text-muted-foreground">PDF, JPG, JPEG, or PNG. Maximum 10 MB per file.</p>
+                            <p class="text-sm text-muted-foreground">
+                                PDF, JPG, JPEG, or PNG. Maximum 10 MB per file.
+                            </p>
                         </div>
                     </div>
-                    <button type="button" class="rounded-lg border px-3 py-2 text-sm font-medium" @click="addDocument">
+
+                    <button
+                        type="button"
+                        class="rounded-lg border px-3 py-2 text-sm font-medium"
+                        @click="addDocument"
+                    >
                         Add optional document
                     </button>
                 </div>
 
                 <div class="space-y-4">
-                    <div v-for="(document, index) in form.documents" :key="`${document.type}-${index}`" class="rounded-xl border p-4">
+                    <div
+                        v-for="(document, index) in form.documents"
+                        :key="`${document.type}-${index}`"
+                        class="rounded-xl border p-4"
+                    >
                         <div class="grid gap-4 md:grid-cols-[1fr_1.2fr_auto] md:items-center">
                             <div>
-                                <div class="font-medium">{{ document.label }} <span v-if="document.required">*</span></div>
-                                <div class="mt-1 text-sm text-muted-foreground">{{ document.help }}</div>
+                                <div class="font-medium">
+                                    {{ document.label }}
+                                    <span v-if="document.required">*</span>
+                                </div>
+                                <div class="mt-1 text-sm text-muted-foreground">
+                                    {{ document.help }}
+                                </div>
                             </div>
 
                             <div class="grid gap-2">
-                                <select v-if="!document.required" v-model="document.type" class="rounded-lg border bg-background p-2 text-sm">
+                                <select
+                                    v-if="! document.required"
+                                    v-model="document.type"
+                                    class="rounded-lg border bg-background p-2 text-sm"
+                                >
                                     <option value="import_export_license">Import/export license</option>
                                     <option value="bank_letter">Bank confirmation letter</option>
                                     <option value="beneficial_ownership">Beneficial ownership declaration</option>
                                     <option value="quality_certificate">Quality certificate</option>
                                     <option value="other">Other supporting document</option>
                                 </select>
+
                                 <input
                                     type="file"
                                     accept=".pdf,.jpg,.jpeg,.png"
@@ -244,7 +291,12 @@ const submit = () => {
                                 />
                             </div>
 
-                            <button v-if="!document.required" type="button" class="text-sm text-destructive" @click="removeDocument(index)">
+                            <button
+                                v-if="! document.required"
+                                type="button"
+                                class="text-sm text-destructive"
+                                @click="removeDocument(index)"
+                            >
                                 Remove
                             </button>
                         </div>
@@ -252,16 +304,25 @@ const submit = () => {
                 </div>
             </section>
 
-            <div v-if="Object.keys(form.errors).length" class="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+            <div
+                v-if="Object.keys(form.errors).length"
+                class="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+            >
                 <div class="mb-2 font-semibold">Please correct the following:</div>
-                <div v-for="(error, key) in form.errors" :key="key">• {{ error }}</div>
+                <div v-for="(error, key) in form.errors" :key="key">
+                    • {{ error }}
+                </div>
             </div>
 
             <div class="flex flex-col gap-3 rounded-2xl border bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
                 <p class="text-sm text-muted-foreground">
                     After submission, an administrator will review your company and documents.
                 </p>
-                <button :disabled="form.processing" class="rounded-lg bg-primary px-5 py-3 font-medium text-primary-foreground disabled:opacity-50">
+
+                <button
+                    :disabled="form.processing"
+                    class="rounded-lg bg-primary px-5 py-3 font-medium text-primary-foreground disabled:opacity-50"
+                >
                     {{ form.processing ? 'Submitting…' : 'Submit for administrator review' }}
                 </button>
             </div>

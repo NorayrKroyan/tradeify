@@ -7,20 +7,42 @@ use App\Enums\TradePostType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TradePost extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'company_id', 'user_id', 'category_id', 'type', 'status', 'title',
-        'product_name', 'description', 'hs_code', 'quantity', 'unit',
-        'price', 'currency', 'price_terms', 'incoterm', 'origin_country_code',
-        'destination_country_code', 'minimum_order_quantity', 'available_from',
-        'expires_at', 'custom_fields', 'admin_notes', 'published_at',
+        'company_id',
+        'user_id',
+        'category_id',
+        'type',
+        'broker_direction',
+        'status',
+        'title',
+        'product_name',
+        'description',
+        'hs_code',
+        'quantity',
+        'unit',
+        'price',
+        'target_price',
+        'currency',
+        'broker_commission_type',
+        'broker_commission_value',
+        'price_terms',
+        'incoterm',
+        'origin_country_code',
+        'destination_country_code',
+        'minimum_order_quantity',
+        'available_from',
+        'expires_at',
+        'custom_fields',
+        'admin_notes',
+        'published_at',
     ];
 
     protected function casts(): array
@@ -30,6 +52,8 @@ class TradePost extends Model
             'status' => TradePostStatus::class,
             'quantity' => 'decimal:3',
             'price' => 'decimal:2',
+            'target_price' => 'decimal:2',
+            'broker_commission_value' => 'decimal:4',
             'minimum_order_quantity' => 'decimal:3',
             'available_from' => 'date',
             'expires_at' => 'date',
@@ -42,7 +66,8 @@ class TradePost extends Model
     {
         return $query->where('status', TradePostStatus::Published->value)
             ->where(function (Builder $q): void {
-                $q->whereNull('expires_at')->orWhereDate('expires_at', '>=', now()->toDateString());
+                $q->whereNull('expires_at')
+                    ->orWhereDate('expires_at', '>=', now()->toDateString());
             });
     }
 

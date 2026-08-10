@@ -7,6 +7,7 @@ import {
     Circle,
     Clock3,
     FileCheck2,
+    Handshake,
     MailCheck,
     ShieldCheck,
     ShoppingCart,
@@ -18,7 +19,7 @@ const props = defineProps<{
     profile: {
         name: string;
         email: string;
-        requested_role: 'buyer' | 'seller' | 'both' | null;
+        requested_role: 'buyer' | 'seller' | 'both' | 'broker' | null;
         email_verified: boolean;
         roles: string[];
         is_admin: boolean;
@@ -39,15 +40,26 @@ const roleLabel = computed(() => {
     if (props.profile.requested_role === 'buyer') return 'Buyer';
     if (props.profile.requested_role === 'seller') return 'Seller';
     if (props.profile.requested_role === 'both') return 'Buyer and seller';
+    if (props.profile.requested_role === 'broker') return 'Broker';
+
     return 'Platform administrator';
 });
 
 const companySubmitted = computed(() => Boolean(props.company));
+
 const companyPending = computed(() =>
-    ['pending', 'under_review'].includes(props.company?.verification_status ?? ''),
+    ['pending', 'under_review'].includes(
+        props.company?.verification_status ?? '',
+    ),
 );
-const companyRejected = computed(() => props.company?.verification_status === 'rejected');
-const companyApproved = computed(() => props.company?.is_approved === true);
+
+const companyRejected = computed(
+    () => props.company?.verification_status === 'rejected',
+);
+
+const companyApproved = computed(
+    () => props.company?.is_approved === true,
+);
 
 const steps = computed(() => [
     {
@@ -62,7 +74,7 @@ const steps = computed(() => [
             ? 'Your email address is confirmed.'
             : 'Open the verification email and click the verification button.',
         done: props.profile.email_verified,
-        active: !props.profile.email_verified,
+        active: ! props.profile.email_verified,
     },
     {
         title: 'Submit company information',
@@ -70,7 +82,7 @@ const steps = computed(() => [
             ? `${props.company?.legal_name} and ${props.company?.documents_count ?? 0} document(s) submitted.`
             : 'Provide legal company details and four required documents.',
         done: companySubmitted.value,
-        active: props.profile.email_verified && !companySubmitted.value,
+        active: props.profile.email_verified && ! companySubmitted.value,
     },
     {
         title: 'Administrator review',
@@ -99,7 +111,7 @@ const steps = computed(() => [
                         Welcome, {{ profile.name }}
                     </h1>
                     <p class="mt-2 max-w-2xl text-muted-foreground">
-                        Complete the steps below. Only approved companies can publish buy requests or sell offers.
+                        Complete the steps below. Only approved companies can publish buy requests, sell offers, or broker opportunities.
                     </p>
                 </div>
 
@@ -110,7 +122,10 @@ const steps = computed(() => [
             </div>
         </section>
 
-        <section v-if="profile.is_admin" class="rounded-2xl border border-primary/30 bg-primary/5 p-6">
+        <section
+            v-if="profile.is_admin"
+            class="rounded-2xl border border-primary/30 bg-primary/5 p-6"
+        >
             <div class="flex items-start gap-4">
                 <ShieldCheck class="mt-1 size-7 shrink-0" />
                 <div class="flex-1">
@@ -119,13 +134,22 @@ const steps = computed(() => [
                         Review companies, manage users, and approve marketplace posts.
                     </p>
                     <div class="mt-5 flex flex-wrap gap-3">
-                        <Link href="/admin/verifications" class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+                        <Link
+                            href="/admin/verifications"
+                            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+                        >
                             Review companies
                         </Link>
-                        <Link href="/admin/users" class="rounded-lg border bg-background px-4 py-2 text-sm font-medium">
+                        <Link
+                            href="/admin/users"
+                            class="rounded-lg border bg-background px-4 py-2 text-sm font-medium"
+                        >
                             Manage users
                         </Link>
-                        <Link href="/admin/trade-posts" class="rounded-lg border bg-background px-4 py-2 text-sm font-medium">
+                        <Link
+                            href="/admin/trade-posts"
+                            class="rounded-lg border bg-background px-4 py-2 text-sm font-medium"
+                        >
                             Moderate posts
                         </Link>
                     </div>
@@ -154,9 +178,14 @@ const steps = computed(() => [
                         Step {{ index + 1 }}
                     </div>
                     <h2 class="mt-1 font-semibold">{{ step.title }}</h2>
-                    <p class="mt-1 text-sm text-muted-foreground">{{ step.description }}</p>
+                    <p class="mt-1 text-sm text-muted-foreground">
+                        {{ step.description }}
+                    </p>
 
-                    <div v-if="index === 1 && !profile.email_verified" class="mt-4">
+                    <div
+                        v-if="index === 1 && ! profile.email_verified"
+                        class="mt-4"
+                    >
                         <Form
                             action="/email/verification-notification"
                             method="post"
@@ -173,7 +202,10 @@ const steps = computed(() => [
                         </Form>
                     </div>
 
-                    <div v-if="index === 2 && profile.email_verified && !companySubmitted" class="mt-4">
+                    <div
+                        v-if="index === 2 && profile.email_verified && ! companySubmitted"
+                        class="mt-4"
+                    >
                         <Link
                             href="/verification/apply"
                             class="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
@@ -183,7 +215,10 @@ const steps = computed(() => [
                         </Link>
                     </div>
 
-                    <div v-if="index === 3 && companyRejected" class="mt-4 space-y-3">
+                    <div
+                        v-if="index === 3 && companyRejected"
+                        class="mt-4 space-y-3"
+                    >
                         <div class="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
                             {{ company?.rejection_reason || 'The administrator requested corrections.' }}
                         </div>
@@ -196,8 +231,14 @@ const steps = computed(() => [
                         </Link>
                     </div>
 
-                    <div v-if="index === 3 && companyPending" class="mt-4">
-                        <Link href="/verification/status" class="text-sm font-medium text-primary underline underline-offset-4">
+                    <div
+                        v-if="index === 3 && companyPending"
+                        class="mt-4"
+                    >
+                        <Link
+                            href="/verification/status"
+                            class="text-sm font-medium text-primary underline underline-offset-4"
+                        >
                             View verification status
                         </Link>
                     </div>
@@ -205,12 +246,16 @@ const steps = computed(() => [
             </div>
         </section>
 
-        <section v-if="!profile.is_admin && companyApproved" class="rounded-2xl border border-emerald-300 bg-emerald-50 p-6 text-emerald-950">
+        <section
+            v-if="! profile.is_admin && companyApproved"
+            class="rounded-2xl border border-emerald-300 bg-emerald-50 p-6 text-emerald-950"
+        >
             <div class="flex items-start gap-4">
                 <BadgeCheck class="mt-1 size-7 shrink-0" />
                 <div class="flex-1">
                     <h2 class="text-xl font-semibold">Your company is approved</h2>
                     <p class="mt-1 text-sm">You can now publish trade opportunities.</p>
+
                     <div class="mt-5 flex flex-wrap gap-3">
                         <Link
                             v-if="profile.requested_role === 'buyer' || profile.requested_role === 'both'"
@@ -220,6 +265,7 @@ const steps = computed(() => [
                             <ShoppingCart class="size-4" />
                             Create buy request
                         </Link>
+
                         <Link
                             v-if="profile.requested_role === 'seller' || profile.requested_role === 'both'"
                             href="/trade-posts/create?type=sell"
@@ -228,7 +274,20 @@ const steps = computed(() => [
                             <Store class="size-4" />
                             Create sell offer
                         </Link>
-                        <Link href="/trade-posts" class="rounded-lg border border-emerald-700 px-4 py-2 text-sm font-medium">
+
+                        <Link
+                            v-if="profile.requested_role === 'broker'"
+                            href="/trade-posts/create?type=broker"
+                            class="inline-flex items-center gap-2 rounded-lg bg-emerald-900 px-4 py-2 text-sm font-medium text-white"
+                        >
+                            <Handshake class="size-4" />
+                            Create broker opportunity
+                        </Link>
+
+                        <Link
+                            href="/trade-posts"
+                            class="rounded-lg border border-emerald-700 px-4 py-2 text-sm font-medium"
+                        >
                             Browse marketplace
                         </Link>
                     </div>
